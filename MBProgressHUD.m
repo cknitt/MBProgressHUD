@@ -572,15 +572,24 @@
 - (void)fillRoundedRect:(CGRect)rect inContext:(CGContextRef)context {
     float radius = 10.0f;
 	
-    CGContextBeginPath(context);
+	CGMutablePathRef path = CGPathCreateMutable();
+    
+	CGPathMoveToPoint(path, NULL, CGRectGetMinX(rect) + radius, CGRectGetMinY(rect));
+    CGPathAddArc(path, NULL, CGRectGetMaxX(rect) - radius, CGRectGetMinY(rect) + radius, radius, 3 * M_PI / 2, 0, 0);
+    CGPathAddArc(path, NULL, CGRectGetMaxX(rect) - radius, CGRectGetMaxY(rect) - radius, radius, 0, M_PI / 2, 0);
+    CGPathAddArc(path, NULL, CGRectGetMinX(rect) + radius, CGRectGetMaxY(rect) - radius, radius, M_PI / 2, M_PI, 0);
+    CGPathAddArc(path, NULL, CGRectGetMinX(rect) + radius, CGRectGetMinY(rect) + radius, radius, M_PI, 3 * M_PI / 2, 0);
+	
     CGContextSetGrayFillColor(context, 0.0, self.opacity);
-    CGContextMoveToPoint(context, CGRectGetMinX(rect) + radius, CGRectGetMinY(rect));
-    CGContextAddArc(context, CGRectGetMaxX(rect) - radius, CGRectGetMinY(rect) + radius, radius, 3 * M_PI / 2, 0, 0);
-    CGContextAddArc(context, CGRectGetMaxX(rect) - radius, CGRectGetMaxY(rect) - radius, radius, 0, M_PI / 2, 0);
-    CGContextAddArc(context, CGRectGetMinX(rect) + radius, CGRectGetMaxY(rect) - radius, radius, M_PI / 2, M_PI, 0);
-    CGContextAddArc(context, CGRectGetMinX(rect) + radius, CGRectGetMinY(rect) + radius, radius, M_PI, 3 * M_PI / 2, 0);
-    CGContextClosePath(context);
-    CGContextFillPath(context);
+	CGContextAddPath(context, path);
+	CGContextFillPath(context);
+	
+	const CGFloat STROKE_OPACITY = 0.25;
+	CGContextSetRGBStrokeColor(context, 1, 1, 1, STROKE_OPACITY);
+	CGContextAddPath(context, path);
+	CGContextStrokePath(context);
+    
+	CGPathRelease(path);
 }
 
 #pragma mark -
